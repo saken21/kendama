@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta name="viewport" content="width=device-width">
+<meta name="robots" content="noindex,nofollow">
+<title>KendaMa - バックアップディスクデータベース -</title>
+<link rel="stylesheet" href="files/css/style.css">
+</head>
+
+<body>
+	
+<section id="all">
+	<header id="header">
+    	<div class="wrap">
+        	<h1 class="title">KendaMa</h1>
+            <section id="searchbox">
+                <form>
+                    <p class="keyword"><input type="text" placeholder="キーワード検索"></p>
+                    <ul class="term">
+                        <li class="from"><input type="month" autocomplete="on" min="2016-01" max="2999-12" value="2016-01" required></li>
+                        <li class="to"><input type="month" autocomplete="on" min="2016-01" max="2999-12" required></li>
+                    </ul>
+                    <p class="submit"><button type="submit">検索</button></p>
+                </form>
+            </section>
+        </div>
+    </header>
+	<section id="discs">
+		<input type="file" webkitdirectory directory id="input-file">
+		<p id="result"></p>
+	</section>
+    <section id="editbox">
+	<div class="cover"></div>
+    <form>
+        <dl class="number">
+            <dt><label for="editbox-name">ディスク名</label></dt>
+            <dd><input type="text" id="editbox-name" data-column="name"></dd>
+        </dl>
+        <dl class="team">
+            <dt><label for="editbox-team">チーム名</label></dt>
+            <dd><input type="text" id="editbox-team" data-column="team"></dd>
+        </dl>
+        <dl class="clients">
+            <dt><label for="editbox-clients">クライアントリスト</label></dt>
+            <dd><input type="text" placeholder="「,」区切り複数入力可" id="editbox-clients" data-column="clients"></dd>
+        </dl>
+        <dl class="works">
+            <dt><label for="editbox-works">案件リスト</label></dt>
+            <dd><input type="text" placeholder="「,」区切り複数入力可" id="editbox-works" data-column="works"></dd>
+        </dl>
+        <dl class="keywords">
+            <dt><label for="editbox-keywords">その他キーワード</label></dt>
+            <dd><input type="text" placeholder="「,」区切り複数入力可" id="editbox-keywords" data-column="keywords"></dd>
+        </dl>
+        <dl class="record_date">
+            <dt><label for="editbox-record_date">登録日</label></dt>
+            <dd><input type="date" id="editbox-record_date" required data-column="record_date"></dd>
+        </dl>
+        <dl class="last_modified_date">
+            <dt><label for="editbox-last_modified_date">最終更新日</label></dt>
+            <dd><input type="date" id="editbox-last_modified_date" required data-column="last_modified_date" readonly></dd>
+        </dl>
+        <dl class="size">
+            <dt><label for="editbox-size">データ容量</label></dt>
+            <dd><input type="number" id="editbox-size" data-column="size" readonly></dd>
+        </dl>
+        <dl class="file_length">
+            <dt><label for="editbox-file_length">ファイル数</label></dt>
+            <dd><input type="number" id="editbox-file_length" data-column="file_length" readonly></dd>
+        </dl>
+        <dl class="note">
+            <dt><label for="editbox-note">コメント</label></dt>
+            <dd><textarea id="editbox-note" data-column="note"></textarea></dd>
+        </dl>
+        <p class="submit"><button type="submit">登録</button></p>
+    </form>
+</section>
+</section>
+
+<script src="files/js/core/jquery.js"></script>
+<script src="files/js/script.js"></script>
+
+</body>
+</html>

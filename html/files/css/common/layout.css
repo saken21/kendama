@@ -1,0 +1,126 @@
+@charset "UTF-8";
+
+@import "base.css";
+
+/*-------------------------------------------------------------------------
+	Form
+/*-----------------------------------------------------------------------*/
+input,
+textarea,
+select {
+	padding:5px;
+	border:1px solid #aaa;
+	background:#fafafa;
+	font-size:12px;
+	line-height:1.8;
+}
+
+input {
+	resize:none;
+	height:20px;
+}
+
+input[type="text"] {
+	width:200px;
+}
+
+input[type="number"] {
+	text-align:right;
+}
+
+select {
+	width:100px;
+	height:30px;
+}
+
+button {
+	height:32px;
+	padding:0 20px;
+	border:none;
+	border-radius:3px;
+	background:#329fba;
+	color:#fff;
+	font-size:14px;
+	text-align:center;
+	text-indent:.5em;
+	letter-spacing:.5em;
+	cursor:pointer;
+}
+
+button:hover {
+	background-color:#53b7d0;
+}
+
+/*-------------------------------------------------------------------------
+	All
+/*-----------------------------------------------------------------------*/
+html,
+body,
+#all {
+	height:100%;
+}
+
+body {
+	overflow-x:hidden;
+}
+
+#all {
+	position:relative;
+	background:#fff;
+	z-index:10;
+}
+
+/*-------------------------------------------------------------------------
+	Header
+/*-----------------------------------------------------------------------*/
+#header {
+	opacity:.95;
+	position:fixed;
+	left:0;
+	top:0;
+	width:100%;
+	padding:20px 0;
+	border-top:3px solid #329fba;
+	border-bottom:1px solid #ccc;
+	background:#fff;
+	z-index:100;
+}
+
+	#header .wrap {
+		margin:0 20px;
+	}
+
+	#header .title {
+		float:left;
+		color:#000;
+		font-size:18px;
+		font-weight:bold;
+		line-height:36px;
+		letter-spacing:1px;
+		cursor:pointer;
+	}
+		
+	#searchbox {
+		float:right;
+	}
+	
+		#searchbox p,
+		#searchbox ul {
+			float:left;
+			margin-right:10px;
+		}
+		
+			#searchbox ul li {
+				float:left;
+			}
+			
+		#searchbox .submit {
+			margin-right:0;
+		}
+		
+		#searchbox .from:after {
+			display:inline-block;
+			content:"-";
+			visibility:visible;
+			margin:0 5px;
+		}

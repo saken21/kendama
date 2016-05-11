@@ -1,0 +1,186 @@
+@charset "UTF-8";
+
+@import "common/layout.css";
+
+/*-------------------------------------------------------------------------
+	Discs
+/*-----------------------------------------------------------------------*/
+#discs {
+	padding:110px 20px 0 20px;
+	background:#fff;
+}
+
+	#discs table {
+		width:100%;
+		font-size:12px;
+		letter-spacing:.5px;
+	}
+	
+		#discs table .date th {
+			padding:15px 0;
+			background:#333;
+			color:#fff;
+			font-size:16px;
+			font-weight:normal;
+			text-align:center;
+		}
+		
+		#discs table td {
+			overflow:hidden;
+			padding:10px;
+			border:1px solid #aaa;
+			background:#fff;
+			word-break:keep-all;
+		}
+		
+		#discs table tr:nth-child(odd) td {
+			background-color:#f8f8f8;
+		}
+		
+		#discs table td.client {
+			cursor:pointer;
+		}
+		
+		#discs table td.client:hover {
+			text-decoration:underline;
+		}
+		
+		#discs table td.name {
+			padding:0;
+		}
+		
+			#discs table td.name a {
+				padding:10px;
+			}
+			
+			#discs table td.name a.link {
+				color:#329fba;
+			}
+			
+			#discs table td.name a.link:hover {
+				text-decoration:underline;
+			}
+			
+		#discs table td.edit {
+			width:40px;
+			padding:0;
+			text-align:center;
+		}
+		
+			#discs table td.edit button {
+				width:100%;
+				height:100%;
+				padding:0 5px;
+				border-radius:0;
+				border:1px solid #fff;
+				background-color:#f06089;
+			}
+			
+			#discs table td.edit button:hover {
+				background-color:#fa8dac;
+			}
+		
+		#discs table td.cost {
+			text-align:right;
+		}
+		
+		#discs table .monthly-cost td,
+		#discs table .total-cost td {
+			background-color:#fff !important;
+			font-size:14px;
+			font-weight:bold;
+		}
+		
+		#discs table .monthly-cost td {
+			border-top-width:2px;
+		}
+		
+		#discs table .blank td {
+			height:10px;
+			border:none;
+			background-color:#fff !important;
+		}
+		
+/*-------------------------------------------------------------------------
+	Result
+/*-----------------------------------------------------------------------*/
+#result {
+	margin:30px 0;
+	font-size:12px;
+}
+
+	#result dl {
+		margin-bottom:15px;
+	}
+		
+		#result dl dt {
+			font-weight:bold;
+		}
+		
+/*-------------------------------------------------------------------------
+	Editbox
+/*-----------------------------------------------------------------------*/
+#editbox {
+	overflow-y:scroll;
+	position:fixed;
+	left:0;
+	top:0;
+	width:600px;
+	height:100%;
+	background:#eee;
+	box-shadow:-3px 0 5px 1px #ccc inset;
+	font-size:12px;
+	z-index:0;
+}
+
+	#editbox .cover {
+		display:none;
+		opacity:.8;
+		position:fixed;
+		left:0;
+		top:0;
+		width:600px;
+		height:100%;
+		background:#fff url(../img/loading.gif) no-repeat center center;
+		z-index:1;
+	}
+
+	#editbox form {
+		padding:40px 10px;
+	}
+	
+	#editbox input,
+	#editbox textarea {
+		width:100%;
+	}
+	
+	#editbox textarea {
+		height:120px;
+	}
+	
+	#editbox dl {
+		float:left;
+		position:relative;
+		width:250px;
+		margin:0 15px 25px 15px;
+	}
+	
+	#editbox dl.keywords,
+	#editbox dl.note {
+		width:530px;
+	}
+	
+		#editbox dl dt {
+			font-weight:bold;
+		}
+			
+	#editbox .submit {
+		clear:both;
+		margin:0 auto;
+		text-align:center;
+	}
+	
+		#editbox .submit button {
+			height:40px;
+			padding:0 40px;
+		}
