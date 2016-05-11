@@ -69,6 +69,12 @@ DateTools.__format = function(d,f) {
 DateTools.format = function(d,f) {
 	return DateTools.__format(d,f);
 };
+DateTools.delta = function(d,t) {
+	var t1 = d.getTime() + t;
+	var d1 = new Date();
+	d1.setTime(t1);
+	return d1;
+};
 var EReg = function(r,opt) {
 	opt = opt.split("u").join("");
 	this.r = new RegExp(r,opt);
@@ -117,11 +123,6 @@ HxOverrides.strDate = function(s) {
 	default:
 		throw "Invalid date format : " + s;
 	}
-};
-HxOverrides.cca = function(s,index) {
-	var x = s.charCodeAt(index);
-	if(x != x) return undefined;
-	return x;
 };
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
@@ -202,19 +203,12 @@ var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	new js.JQuery("document").ready(function(event) {
-		new js.JQuery("#input-file").on("change",function(event1) {
-			Main.showResult(utils.DiscInfo.get(event1.target.files));
-		});
+		view.Searchbox.init();
+		view.Header.init();
+		view.Editbox.init();
+		view.Discs.init();
+		ui.Keyboard.init();
 	});
-};
-Main.showResult = function(info) {
-	var result = "";
-	var $it0 = Main.KEYS.keys();
-	while( $it0.hasNext() ) {
-		var key = $it0.next();
-		result += "<dl><dt>" + Main.KEYS.get(key) + "</dt><dd>" + info.get(key) + "</dd></dl>";
-	}
-	new js.JQuery("#result").html(result);
 };
 var IMap = function() { };
 IMap.__name__ = true;
@@ -247,12 +241,6 @@ Std.string = function(s) {
 };
 Std["int"] = function(x) {
 	return x | 0;
-};
-Std.parseInt = function(x) {
-	var v = parseInt(x,10);
-	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
-	if(isNaN(v)) return null;
-	return v;
 };
 var StringBuf = function() {
 	this.b = "";
@@ -392,16 +380,6 @@ haxe.ds.IntMap.prototype = {
 	set: function(key,value) {
 		this.h[key] = value;
 	}
-	,get: function(key) {
-		return this.h[key];
-	}
-	,keys: function() {
-		var a = [];
-		for( var key in this.h ) {
-		if(this.h.hasOwnProperty(key)) a.push(key | 0);
-		}
-		return HxOverrides.iter(a);
-	}
 };
 haxe.ds.StringMap = function() {
 	this.h = { };
@@ -415,32 +393,12 @@ haxe.ds.StringMap.prototype = {
 	,get: function(key) {
 		return this.h["$" + key];
 	}
-	,remove: function(key) {
-		key = "$" + key;
-		if(!this.h.hasOwnProperty(key)) return false;
-		delete(this.h[key]);
-		return true;
-	}
 	,keys: function() {
 		var a = [];
 		for( var key in this.h ) {
 		if(this.h.hasOwnProperty(key)) a.push(key.substr(1));
 		}
 		return HxOverrides.iter(a);
-	}
-	,toString: function() {
-		var s = new StringBuf();
-		s.b += "{";
-		var it = this.keys();
-		while( it.hasNext() ) {
-			var i = it.next();
-			if(i == null) s.b += "null"; else s.b += "" + i;
-			s.b += " => ";
-			s.add(Std.string(this.get(i)));
-			if(it.hasNext()) s.b += ", ";
-		}
-		s.b += "}";
-		return s.b;
 	}
 };
 var jp = {};
@@ -473,6 +431,20 @@ jp.saken.utils.API.getIP = function(onLoaded) {
 		$r = _g;
 		return $r;
 	}(this)),onLoaded);
+};
+jp.saken.utils.Dateformat = function() { };
+jp.saken.utils.Dateformat.__name__ = true;
+jp.saken.utils.Dateformat.getDatetime = function(date) {
+	return DateTools.format(date,"%Y-%m-%d %H:%M:%S");
+};
+jp.saken.utils.Dateformat.getDate = function(date) {
+	return DateTools.format(date,"%Y-%m-%d");
+};
+jp.saken.utils.Dateformat.getMonth = function(date) {
+	return DateTools.format(date,"%Y-%m");
+};
+jp.saken.utils.Dateformat.getAddedDate = function(date,plus) {
+	return DateTools.delta(date,plus * 24.0 * 60.0 * 60.0 * 1000.0);
 };
 var js = {};
 jp.saken.utils.Dom = function() { };
@@ -688,6 +660,18 @@ js.Browser.createXMLHttpRequest = function() {
 	if(typeof ActiveXObject != "undefined") return new ActiveXObject("Microsoft.XMLHTTP");
 	throw "Unable to create XMLHttpRequest object.";
 };
+var ui = {};
+ui.Keyboard = function() { };
+ui.Keyboard.__name__ = true;
+ui.Keyboard.init = function() {
+	jp.saken.utils.Dom.jWindow.on("keydown",ui.Keyboard.onKeydown);
+};
+ui.Keyboard.onKeydown = function(event) {
+	var keyCode = event.keyCode;
+	if(event.ctrlKey) {
+		if(keyCode == 69) view.Editbox.toggle();
+	}
+};
 var utils = {};
 utils.Data = function() { };
 utils.Data.__name__ = true;
@@ -698,19 +682,10 @@ utils.Data.load = function(keyword,from,to) {
 	_g.set("to",to);
 	params = _g;
 	if(keyword.length > 0) {
-		params.set("client",keyword);
+		params.set("keyword",keyword);
 		keyword;
 	}
-	jp.saken.utils.API.getJSON("webResults2",params,function(data) {
-		if(data.length == 0) {
-			params.remove("client");
-			params.set("keyword",keyword);
-			keyword;
-			jp.saken.utils.API.getJSON("webResults2",params,utils.Data.onLoaded);
-			return;
-		}
-		utils.Data.onLoaded(data);
-	});
+	jp.saken.utils.API.getJSON("kendama",params,utils.Data.onLoaded);
 };
 utils.Data.insert = function(params,onLoaded) {
 	params.set("mode","insert");
@@ -726,8 +701,18 @@ utils.Data.update = function(id,params,onLoaded) {
 	"update";
 	utils.Data.set(params,onLoaded);
 };
+utils.Data["delete"] = function(id,onLoaded) {
+	utils.Data.set((function($this) {
+		var $r;
+		var _g = new haxe.ds.StringMap();
+		_g.set("mode","delete");
+		_g.set("id",id == null?"null":"" + id);
+		$r = _g;
+		return $r;
+	}(this)),onLoaded);
+};
 utils.Data.loadOne = function(id,onLoaded) {
-	jp.saken.utils.API.getJSON("webResults2",(function($this) {
+	jp.saken.utils.API.getJSON("kendama",(function($this) {
 		var $r;
 		var _g = new haxe.ds.StringMap();
 		_g.set("id",id == null?"null":"" + id);
@@ -738,57 +723,39 @@ utils.Data.loadOne = function(id,onLoaded) {
 	});
 };
 utils.Data.onLoaded = function(data) {
-	if(data.length > 0) view.Works.setHTML(utils.Data.getSplitedData(data)); else view.Works.setEmptyHTML();
-	utils.Data.traceMembersCost(data);
+	if(data.length > 0) view.Discs.setHTML(utils.Data.getSplitedData(data)); else view.Discs.setEmptyHTML();
 };
 utils.Data.set = function(params,onLoaded) {
-	jp.saken.utils.API.getString("webResults2",params,function(data) {
+	jp.saken.utils.API.getString("kendama",params,function(data) {
 		onLoaded();
 	});
 };
 utils.Data.getSplitedData = function(data) {
-	var map = new haxe.ds.IntMap();
+	var map = new haxe.ds.StringMap();
 	var _g1 = 0;
 	var _g = data.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		var info = data[i];
-		var date = info.date;
-		var array = map.get(date);
+		var month = jp.saken.utils.Dateformat.getMonth((function($this) {
+			var $r;
+			var s = info.record_date;
+			$r = HxOverrides.strDate(s);
+			return $r;
+		}(this)));
+		var array = map.get(month);
+		info.last_modified_date = jp.saken.utils.Dateformat.getMonth((function($this) {
+			var $r;
+			var s1 = info.last_modified_date;
+			$r = HxOverrides.strDate(s1);
+			return $r;
+		}(this)));
 		if(array == null) array = [];
 		array.push(info);
-		map.set(date,array);
+		map.set(month,array);
 		array;
 	}
 	return map;
-};
-utils.Data.traceMembersCost = function(data) {
-	jp.saken.utils.API.getIP(function(ip) {
-		if(ip != "192.168.0.39") return;
-		var map = new haxe.ds.StringMap();
-		var _g1 = 0;
-		var _g = data.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var ratioList = data[i].price_ratio_list;
-			if(ratioList == null) continue;
-			var ratios = ratioList.split(",");
-			var _g3 = 0;
-			var _g2 = ratios.length;
-			while(_g3 < _g2) {
-				var j = _g3++;
-				var splits = ratios[j].split("=");
-				var member = splits[0];
-				var cost = Std.parseInt(splits[1]);
-				var total = map.get(member);
-				if(total == null) total = 0;
-				total += cost;
-				map.set(member,total);
-				total;
-			}
-		}
-		console.log(map.toString());
-	});
 };
 utils.DiscInfo = function() { };
 utils.DiscInfo.__name__ = true;
@@ -806,18 +773,12 @@ utils.DiscInfo.get = function(files) {
 		var i = _g++;
 		utils.DiscInfo.analyzeFile(files[i]);
 	}
-	var _g1 = new haxe.ds.StringMap();
-	_g1.set("name",utils.DiscInfo._name);
-	_g1.set("team",utils.DiscInfo._team);
-	_g1.set("clients",utils.DiscInfo._clients.join(","));
-	_g1.set("works",utils.DiscInfo._works.join(","));
-	_g1.set("record_date",(function($this) {
+	return { name : utils.DiscInfo._name, team : utils.DiscInfo._team, clients : utils.DiscInfo._clients.join(","), works : utils.DiscInfo._works.join(","), record_date : (function($this) {
 		var $r;
 		var _this = new Date();
 		$r = HxOverrides.dateStr(_this);
 		return $r;
-	}(this)));
-	_g1.set("last_modified_date",(function($this) {
+	}(this)), last_modified_date : (function($this) {
 		var $r;
 		var _this1;
 		{
@@ -827,10 +788,7 @@ utils.DiscInfo.get = function(files) {
 		}
 		$r = HxOverrides.dateStr(_this1);
 		return $r;
-	}(this)));
-	_g1.set("size",Std.string(utils.DiscInfo._size));
-	_g1.set("file_length",length == null?"null":"" + length);
-	return _g1;
+	}(this)), size : Std.string(utils.DiscInfo._size), file_length : length == null?"null":"" + length};
 };
 utils.DiscInfo.analyzeFile = function(file) {
 	var lastModified = file.lastModified;
@@ -851,6 +809,39 @@ utils.DiscInfo.pushKeyword = function(array,value) {
 	array.push(value);
 };
 var view = {};
+view.Discs = function() { };
+view.Discs.__name__ = true;
+view.Discs.init = function() {
+	view.Discs._jParent = new js.JQuery("#discs");
+	view.Discs._jParent.on("click",view.Discs.onClick);
+};
+view.Discs.setHTML = function(map) {
+	view.Discs._jParent.html(view.Html.get(map));
+};
+view.Discs.setEmptyHTML = function() {
+	view.Discs._jParent.html("<tr><th>検索結果：0件<th></tr>");
+};
+view.Discs.onClick = function(event) {
+	var jTarget = new js.JQuery(event.target);
+	var jParent = jTarget.parents(".disc");
+	var id = jParent.data("id");
+	if(jTarget.hasClass("edit-button")) {
+		view.Editbox.edit(id);
+		return;
+	} else if(jTarget.hasClass("delete-button")) {
+		view.Discs.deleteDisc(id,jParent);
+		return;
+	}
+	view.Editbox.close();
+};
+view.Discs.deleteDisc = function(id,jTarget) {
+	var text = "「" + jTarget.find(".name").text() + "」を削除してもよろしいですか？";
+	jp.saken.utils.Handy.confirm(text,function() {
+		utils.Data["delete"](id,function() {
+			jTarget.remove();
+		});
+	});
+};
 view.Editbox = function() { };
 view.Editbox.__name__ = true;
 view.Editbox.init = function() {
@@ -861,6 +852,7 @@ view.Editbox.init = function() {
 	view.Editbox._width = view.Editbox._jParent.width();
 	view.Editbox._isOpened = false;
 	view.Editbox._jParent.find(".submit").on("click",view.Editbox.submit);
+	view.Editbox._jParent.find("#editbox-file").on("change",view.Editbox.selectDirectory);
 };
 view.Editbox.toggle = function() {
 	view.Editbox._currentID = null;
@@ -871,6 +863,12 @@ view.Editbox.edit = function(id) {
 	view.Editbox.open();
 	utils.Data.loadOne(id,view.Editbox.setData);
 };
+view.Editbox.open = function() {
+	if(view.Editbox._isOpened) return;
+	view.Editbox._isOpened = true;
+	view.Editbox.move(view.Editbox._width);
+	view.Editbox.setDefault();
+};
 view.Editbox.close = function() {
 	if(!view.Editbox._isOpened) return;
 	view.Editbox._isOpened = false;
@@ -878,34 +876,19 @@ view.Editbox.close = function() {
 };
 view.Editbox.setDefault = function() {
 	view.Editbox._jColumns.prop("value","");
-	view.Editbox._jParent.find("#editbox-updatetime").prop("value",DateTools.format(new Date(),"%Y-%m"));
+	view.Editbox._jParent.find("#editbox-record_date").prop("value",DateTools.format(new Date(),"%Y-%m"));
 };
 view.Editbox.setData = function(data) {
-	var setDate = function(jTarget,value) {
-		var date = view.Html.getFormattedDate(value,"-");
-		jTarget.prop("value",date);
+	var getFormattedDate = function(value) {
+		return value.split(" ")[0];
 	};
 	view.Editbox._jColumns.each(function() {
-		var jTarget1 = $(this);
-		var column = jTarget1.data("column");
+		var jTarget = $(this);
+		var column = jTarget.data("column");
 		var value1 = Reflect.getProperty(data,column);
-		switch(column) {
-		case "updatetime":
-			setDate(jTarget1,Std.parseInt(value1));
-			break;
-		case "last_modified_datetime":
-			setDate(jTarget1,Std.parseInt(value1));
-			break;
-		default:
-			jTarget1.prop("value",value1);
-		}
+		if(jTarget.prop("type") == "date") value1 = getFormattedDate(value1);
+		jTarget.prop("value",value1);
 	});
-};
-view.Editbox.open = function() {
-	if(view.Editbox._isOpened) return;
-	view.Editbox._isOpened = true;
-	view.Editbox.move(view.Editbox._width);
-	view.Editbox.setDefault();
 };
 view.Editbox.move = function(x) {
 	view.Editbox._jMainArea.stop().animate({ left : x},200);
@@ -920,6 +903,7 @@ view.Editbox.submit = function(event) {
 	}
 	view.Editbox._jCover.show();
 	if(view.Editbox._currentID == null) utils.Data.insert(view.Editbox.getParams(),view.Editbox.onUpdated); else utils.Data.update(view.Editbox._currentID,view.Editbox.getParams(),view.Editbox.onUpdated);
+	return false;
 };
 view.Editbox.onUpdated = function() {
 	var timer = new haxe.Timer(1000);
@@ -945,6 +929,9 @@ view.Editbox.getParams = function() {
 		value;
 	});
 	return params;
+};
+view.Editbox.selectDirectory = function(event) {
+	view.Editbox.setData(utils.DiscInfo.get(event.target.files));
 };
 view.Header = function() { };
 view.Header.__name__ = true;
@@ -974,69 +961,42 @@ view.Html.getFormattedDate = function(date,separator) {
 	return HxOverrides.substr(string,0,4) + separator + HxOverrides.substr(string,4,2);
 };
 view.Html.getMonthlyWorks = function(key,array) {
-	var monthlyCost = 0;
-	var html = "\n\t\t<tr class=\"date\">\n\t\t\t<th colspan=\"" + 7 + "\">" + view.Html.getFormattedDate(key) + "</th>\n\t\t</tr>";
+	var html = "\n\t\t<tr class=\"month\">\n\t\t\t<th colspan=\"" + 9 + "\">" + key + "</th>\n\t\t</tr>";
+	html += view.Html.getTitle();
 	var _g1 = 0;
 	var _g = array.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		var info = array[i];
-		html += view.Html.getWork(info);
-		monthlyCost += info.cost;
+		html += view.Html.getDisc(array[i]);
 	}
-	view.Html._totalCost += monthlyCost;
-	html += "\n\t\t<tr class=\"monthly-cost\">\n\t\t\t<td class=\"cost\" colspan=\"" + 7 + "\">月計：" + jp.saken.utils.Handy.getFormattedPrice(monthlyCost) + "</td>\n\t\t</tr>\n\t\t<tr class=\"total-cost\">\n\t\t\t<td class=\"cost\" colspan=\"" + 7 + "\">累計：" + jp.saken.utils.Handy.getFormattedPrice(view.Html._totalCost) + "</td>\n\t\t</tr>\n\t\t<tr class=\"blank\"><td colspan=\"" + 7 + "\"></td></tr>";
+	html += "<tr class=\"blank\"><td colspan=\"" + 9 + "\"></td></tr>";
 	return html;
 };
-view.Html.getWork = function(info) {
-	var keys = ["number","client","name","members","sales","cost"];
-	var html = "<tr class=\"work\" data-id=\"" + Std.string(info.id) + "\">";
-	var _g1 = 0;
-	var _g = keys.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		html += view.Html.getTD(info,keys[i]);
+view.Html.getTitle = function() {
+	var html = "<tr class=\"title\">";
+	var $it0 = view.Html.COLUMN_LIST.keys();
+	while( $it0.hasNext() ) {
+		var key = $it0.next();
+		html += "<th class=\"" + key + "\">" + view.Html.COLUMN_LIST.get(key) + "</th>";
+	}
+	html += "<th class=\"edit\">編集</th><th class=\"delete\">削除</th>";
+	return html + "</tr>";
+};
+view.Html.getDisc = function(info) {
+	var html = "<tr class=\"disc\" data-id=\"" + Std.string(info.id) + "\">";
+	var $it0 = view.Html.COLUMN_LIST.keys();
+	while( $it0.hasNext() ) {
+		var key = $it0.next();
+		html += view.Html.getTD(info,key);
 	}
 	html += "<td class=\"edit\"><button type=\"button\" class=\"edit-button\">✎</button></td>";
+	html += "<td class=\"delete\"><button type=\"button\" class=\"delete-button\">×</button></td>";
 	return html + "</tr>";
 };
 view.Html.getTD = function(info,key) {
-	var content = "";
-	if(key == "members") {
-		var ratioList = info.price_ratio_list;
-		if(ratioList != null) content = view.Html.getMembers(ratioList.split(","));
-	} else {
-		var value = Std.string(Reflect.getProperty(info,key));
-		if(value == "null") value = "";
-		switch(key) {
-		case "cost":
-			content = jp.saken.utils.Handy.getFormattedPrice(Std.parseInt(value));
-			break;
-		case "name":
-			var url = info.url;
-			var name = value;
-			var prop = "";
-			if(url.length > 0) prop = " href=\"" + url + "\" class=\"link\" target=\"_blank\"";
-			content = "<a" + prop + ">" + name + "</a>";
-			break;
-		default:
-			if(value.length > 0) content = value; else content = "-";
-		}
-	}
-	return "<td class=\"" + key + "\">" + content + "</td>";
-};
-view.Html.getMembers = function(ratios) {
-	ratios.sort(function(a,b) {
-		return Std.parseInt(b.split("=")[1]) - Std.parseInt(a.split("=")[1]);
-	});
-	var members = [];
-	var _g1 = 0;
-	var _g = ratios.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		members.push(ratios[i].split("=")[0]);
-	}
-	return members.join(",");
+	var value = Std.string(Reflect.getProperty(info,key));
+	if(value.length == 0) value = "-";
+	return "<td class=\"" + key + "\">" + value + "</td>";
 };
 view.Searchbox = function() { };
 view.Searchbox.__name__ = true;
@@ -1047,55 +1007,31 @@ view.Searchbox.init = function() {
 	view.Searchbox._jTo = view.Searchbox._jParent.find(".to").find("input");
 	view.Searchbox._jSubmit = view.Searchbox._jParent.find(".submit").find("button");
 	view.Searchbox._jSubmit.on("click",view.Searchbox.submit);
+	view.Searchbox._jParent.find(".register").on("click",view.Searchbox.register);
 	view.Searchbox.reset();
 };
 view.Searchbox.reload = function() {
 	view.Searchbox._jSubmit.trigger("click");
 };
 view.Searchbox.reset = function() {
-	view.Searchbox.setYear(new Date().getFullYear());
+	var date = new Date();
+	view.Searchbox._jFrom.prop("value",jp.saken.utils.Dateformat.getMonth(jp.saken.utils.Dateformat.getAddedDate(date,-1095)));
+	view.Searchbox._jTo.prop("value",jp.saken.utils.Dateformat.getMonth(date));
 	view.Searchbox.searchKeyword("");
 };
 view.Searchbox.searchKeyword = function(keyword) {
 	view.Searchbox._jKeyword.prop("value",keyword);
 	view.Searchbox.reload();
 };
-view.Searchbox.setYear = function(year) {
-	view.Searchbox._jFrom.prop("value",view.Searchbox.getFormattedDate(year,1));
-	view.Searchbox._jTo.prop("value",view.Searchbox.getFormattedDate(year,12));
-};
 view.Searchbox.submit = function(event) {
 	var keyword = view.Searchbox._jKeyword.prop("value");
-	var from = view.Searchbox.getDateNumber(view.Searchbox._jFrom.prop("value"));
-	var to = view.Searchbox.getDateNumber(view.Searchbox._jTo.prop("value"));
+	var from = Std.string(view.Searchbox._jFrom.prop("value")) + "-00";
+	var to = Std.string(view.Searchbox._jTo.prop("value")) + "-31";
 	utils.Data.load(keyword,from,to);
 	return false;
 };
-view.Searchbox.getDateNumber = function(date) {
-	return StringTools.replace(date,"-","");
-};
-view.Searchbox.getFormattedDate = function(year,month) {
-	return year + "-" + jp.saken.utils.Handy.getFilledNumber(month,2);
-};
-view.Works = function() { };
-view.Works.__name__ = true;
-view.Works.init = function() {
-	view.Works._jParent = new js.JQuery("#works");
-	view.Works._jParent.on("click",view.Works.onClick);
-};
-view.Works.setHTML = function(map) {
-	view.Works._jParent.html(view.Html.get(map));
-};
-view.Works.setEmptyHTML = function() {
-	view.Works._jParent.html("<tr><th>検索結果：0件<th></tr>");
-};
-view.Works.onClick = function(event) {
-	var jTarget = new js.JQuery(event.target);
-	if(jTarget.hasClass("edit-button")) {
-		view.Editbox.edit(jTarget.parents(".work").data("id"));
-		return;
-	} else if(jTarget.hasClass("client")) view.Searchbox.searchKeyword(jTarget.text());
-	view.Editbox.close();
+view.Searchbox.register = function(event) {
+	view.Editbox.open();
 };
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
@@ -1117,20 +1053,6 @@ Array.__name__ = true;
 Date.__name__ = ["Date"];
 var q = window.jQuery;
 js.JQuery = q;
-Main.KEYS = (function($this) {
-	var $r;
-	var _g = new haxe.ds.StringMap();
-	_g.set("name","ディスク名");
-	_g.set("team","チーム名");
-	_g.set("clients","クライアントリスト");
-	_g.set("works","案件リスト");
-	_g.set("record_date","登録日");
-	_g.set("last_modified_date","最終更新日");
-	_g.set("size","データ容量");
-	_g.set("file_length","ファイル数");
-	$r = _g;
-	return $r;
-}(this));
 jp.saken.utils.API.PATH = "/api/";
 jp.saken.utils.Dom.document = window.document;
 jp.saken.utils.Dom.window = window;
@@ -1138,8 +1060,21 @@ jp.saken.utils.Dom.jWindow = new js.JQuery(jp.saken.utils.Dom.window);
 jp.saken.utils.Dom.body = jp.saken.utils.Dom.document.body;
 jp.saken.utils.Dom.jBody = new js.JQuery(jp.saken.utils.Dom.body);
 jp.saken.utils.Dom.userAgent = jp.saken.utils.Dom.window.navigator.userAgent;
-utils.Data.API_NAME = "webResults2";
-utils.Data.MY_IP = "192.168.0.39";
-view.Html.COLUMN_LENGTH = 7;
+utils.Data.API_NAME = "kendama";
+view.Html.COLUMN_LIST = (function($this) {
+	var $r;
+	var _g = new haxe.ds.StringMap();
+	_g.set("name","ディスク名");
+	_g.set("team","部署／チーム名");
+	_g.set("clients","クライアントリスト");
+	_g.set("works","案件リスト");
+	_g.set("keywords","その他キーワード");
+	_g.set("last_modified_date","最終更新日");
+	_g.set("note","コメント");
+	$r = _g;
+	return $r;
+}(this));
+view.Html.COLUMN_LENGTH = 9;
+view.Searchbox.TERM = 3;
 Main.main();
 })();

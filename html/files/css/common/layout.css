@@ -115,8 +115,20 @@ body {
 			}
 			
 		#searchbox .submit {
+			margin-right:20px;
+		}
+		
+		#searchbox .register {
 			margin-right:0;
 		}
+		
+			#searchbox .register button {
+				background-color:#f06089;
+			}
+			
+			#searchbox .register button:hover {
+				background-color:#fa8dac;
+			}
 		
 		#searchbox .from:after {
 			display:inline-block;

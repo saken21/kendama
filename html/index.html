@@ -20,21 +20,26 @@
                 <form>
                     <p class="keyword"><input type="text" placeholder="キーワード検索"></p>
                     <ul class="term">
-                        <li class="from"><input type="month" autocomplete="on" min="2016-01" max="2999-12" value="2016-01" required></li>
-                        <li class="to"><input type="month" autocomplete="on" min="2016-01" max="2999-12" required></li>
+                        <li class="from"><input type="month" autocomplete="on" min="2000-01" max="2999-12" value="2016-01" required></li>
+                        <li class="to"><input type="month" autocomplete="on" min="2000-01" max="2999-12" required></li>
                     </ul>
                     <p class="submit"><button type="submit">検索</button></p>
+                    <p class="register"><button type="button">新規登録</button></p>
                 </form>
             </section>
         </div>
     </header>
 	<section id="discs">
-		<input type="file" webkitdirectory directory id="input-file">
 		<p id="result"></p>
 	</section>
-    <section id="editbox">
+</section>
+<section id="editbox">
 	<div class="cover"></div>
     <form>
+        <dl class="file">
+            <dt><label for="editbox-file">ディレクトリ選択</label></dt>
+            <dd><input type="file" webkitdirectory directory class="file" id="editbox-file"></dd>
+        </dl>
         <dl class="number">
             <dt><label for="editbox-name">ディスク名</label></dt>
             <dd><input type="text" id="editbox-name" data-column="name"></dd>
@@ -61,15 +66,15 @@
         </dl>
         <dl class="last_modified_date">
             <dt><label for="editbox-last_modified_date">最終更新日</label></dt>
-            <dd><input type="date" id="editbox-last_modified_date" required data-column="last_modified_date" readonly></dd>
+            <dd><input type="date" id="editbox-last_modified_date" required data-column="last_modified_date"></dd>
         </dl>
         <dl class="size">
             <dt><label for="editbox-size">データ容量</label></dt>
-            <dd><input type="number" id="editbox-size" data-column="size" readonly></dd>
+            <dd><input type="number" id="editbox-size" data-column="size"></dd>
         </dl>
         <dl class="file_length">
             <dt><label for="editbox-file_length">ファイル数</label></dt>
-            <dd><input type="number" id="editbox-file_length" data-column="file_length" readonly></dd>
+            <dd><input type="number" id="editbox-file_length" data-column="file_length"></dd>
         </dl>
         <dl class="note">
             <dt><label for="editbox-note">コメント</label></dt>
@@ -77,7 +82,6 @@
         </dl>
         <p class="submit"><button type="submit">登録</button></p>
     </form>
-</section>
 </section>
 
 <script src="files/js/core/jquery.js"></script>

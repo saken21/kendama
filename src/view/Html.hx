@@ -7,12 +7,25 @@ import utils.Data;
 class Html {
 	
 	private static var _totalCost:Int;
-	private static inline var COLUMN_LENGTH:Int = 7;
+	
+	private static var COLUMN_LIST:Map<String,String> = [
+	
+		'name'               => 'ディスク名',
+		'team'               => '部署／チーム名',
+		'clients'            => 'クライアントリスト',
+		'works'              => '案件リスト',
+		'keywords'           => 'その他キーワード',
+		'last_modified_date' => '最終更新日',
+		'note'               => 'コメント'
+		
+	];
+	
+	private static inline var COLUMN_LENGTH:Int = 9;
 	
 	/* =======================================================================
 	Public - Get
 	========================================================================== */
-	public static function get(map:Map<Int,DataArray>):String {
+	public static function get(map:Map<String,DataArray>):String {
 		
 		_totalCost = 0;
 
@@ -39,52 +52,55 @@ class Html {
 	/* =======================================================================
 	Get Monthly Works
 	========================================================================== */
-	private static function getMonthlyWorks(key:Int,array:DataArray):String {
-		
-		var monthlyCost:Int = 0;
+	private static function getMonthlyWorks(key:String,array:DataArray):String {
 		
 		var html:String = '
-		<tr class="date">
-			<th colspan="' + COLUMN_LENGTH + '">' + getFormattedDate(key) + '</th>
+		<tr class="month">
+			<th colspan="' + COLUMN_LENGTH + '">' + key + '</th>
 		</tr>';
 		
+		html += getTitle();
+		
 		for (i in 0...array.length) {
-			
-			var info:Dynamic = array[i];
-			
-			html += getWork(info);
-			monthlyCost += info.cost;
-			
+			html += getDisc(array[i]);
 		}
 		
-		_totalCost += monthlyCost;
-		
-		html += '
-		<tr class="monthly-cost">
-			<td class="cost" colspan="' + COLUMN_LENGTH + '">月計：' + Handy.getFormattedPrice(monthlyCost) + '</td>
-		</tr>
-		<tr class="total-cost">
-			<td class="cost" colspan="' + COLUMN_LENGTH + '">累計：' + Handy.getFormattedPrice(_totalCost) + '</td>
-		</tr>
-		<tr class="blank"><td colspan="' + COLUMN_LENGTH + '"></td></tr>';
+		html += '<tr class="blank"><td colspan="' + COLUMN_LENGTH + '"></td></tr>';
 		
 		return html;
 		
 	}
 	
 	/* =======================================================================
+	Get Title
+	========================================================================== */
+	private static function getTitle():String {
+		
+		var html:String = '<tr class="title">';
+		
+		for (key in COLUMN_LIST.keys()) {
+			html += '<th class="' + key + '">' + COLUMN_LIST[key] + '</th>';
+		}
+		
+		html += '<th class="edit">編集</th><th class="delete">削除</th>';
+		
+		return html + '</tr>';
+		
+	}
+	
+	/* =======================================================================
 	Get Work
 	========================================================================== */
-	private static function getWork(info:Dynamic):String {
+	private static function getDisc(info:Dynamic):String {
 		
-		var keys:Array<String> = ['number','client','name','members','sales','cost'];
-		var html:String = '<tr class="work" data-id="' + info.id + '">';
+		var html:String = '<tr class="disc" data-id="' + info.id + '">';
 		
-		for (i in 0...keys.length) {
-			html += getTD(info,keys[i]);
+		for (key in COLUMN_LIST.keys()) {
+			html += getTD(info,key);
 		}
 		
 		html += '<td class="edit"><button type="button" class="edit-button">✎</button></td>';
+		html += '<td class="delete"><button type="button" class="delete-button">×</button></td>';
 		
 		return html + '</tr>';
 		
@@ -95,62 +111,10 @@ class Html {
 	========================================================================== */
 	private static function getTD(info:Dynamic,key:String):String {
 		
-		var content:String = '';
+		var value:String = Std.string(Reflect.getProperty(info,key));
+		if (value.length == 0) value = '-';
 		
-		if (key == 'members') {
-			
-			var ratioList:String = info.price_ratio_list;
-			if (ratioList != null) content = getMembers(ratioList.split(','));
-			
-		} else {
-			
-			var value:String = Std.string(Reflect.getProperty(info,key));
-			if (value == 'null') value = '';
-			
-			switch (key) {
-				
-				case 'cost' : content = Handy.getFormattedPrice(Std.parseInt(value));
-
-				case 'name' : {
-
-					var url :String = info.url;
-					var name:String = value;
-					var prop:String = '';
-
-					if (url.length > 0) {
-						prop = ' href="' + url + '" class="link" target="_blank"';
-					}
-
-					content = '<a' + prop + '>' + name + '</a>';
-
-				}
-
-				default : content = value.length > 0 ? value : '-';
-
-			}
-			
-		}
-		
-		return '<td class="' + key + '">' + content + '</td>';
-		
-	}
-	
-	/* =======================================================================
-	Get Members
-	========================================================================== */
-	private static function getMembers(ratios:Array<String>):String {
-		
-		ratios.sort(function(a:String,b:String):Int {
-			return Std.parseInt(b.split('=')[1]) - Std.parseInt(a.split('=')[1]);
-		});
-		
-		var members:Array<String> = [];
-		
-		for (i in 0...ratios.length) {
-			members.push(ratios[i].split('=')[0]);
-		}
-		
-		return members.join(',');
+		return '<td class="' + key + '">' + value + '</td>';
 		
 	}
 

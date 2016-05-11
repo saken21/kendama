@@ -13,7 +13,7 @@ class DiscInfo {
 	/* =======================================================================
 	Public - Get
 	========================================================================== */
-	public static function get(files:Array<Dynamic>):Map<String,String> {
+	public static function get(files:Array<Dynamic>):Dynamic {
 		
 		_name         = null;
 		_team         = null;
@@ -29,18 +29,18 @@ class DiscInfo {
 			analyzeFile(files[i]);
 		}
 		
-		return [
+		return {
 			
-			'name' => _name,
-			'team' => _team,
-			'clients' => _clients.join(','),
-			'works' => _works.join(','),
-			'record_date' => Date.now().toString(),
-			'last_modified_date' => Date.fromTime(_lastModified).toString(),
-			'size' => Std.string(_size),
-			'file_length' => Std.string(length)
+			name : _name,
+			team : _team,
+			clients : _clients.join(','),
+			works : _works.join(','),
+			record_date : Date.now().toString(),
+			last_modified_date : Date.fromTime(_lastModified).toString(),
+			size : Std.string(_size),
+			file_length : Std.string(length)
 		
-		];
+		};
 		
 	}
 	

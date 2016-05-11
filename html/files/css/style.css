@@ -16,7 +16,7 @@
 		letter-spacing:.5px;
 	}
 	
-		#discs table .date th {
+		#discs table .month th {
 			padding:15px 0;
 			background:#333;
 			color:#fff;
@@ -25,75 +25,53 @@
 			text-align:center;
 		}
 		
+		#discs table .title th,
 		#discs table td {
-			overflow:hidden;
 			padding:10px;
 			border:1px solid #aaa;
 			background:#fff;
+		}
+		
+		#discs table td {
+			overflow:hidden;
 			word-break:keep-all;
 		}
 		
 		#discs table tr:nth-child(odd) td {
 			background-color:#f8f8f8;
 		}
-		
-		#discs table td.client {
-			cursor:pointer;
-		}
-		
-		#discs table td.client:hover {
-			text-decoration:underline;
-		}
-		
-		#discs table td.name {
-			padding:0;
-		}
-		
-			#discs table td.name a {
-				padding:10px;
-			}
 			
-			#discs table td.name a.link {
-				color:#329fba;
-			}
-			
-			#discs table td.name a.link:hover {
-				text-decoration:underline;
-			}
-			
-		#discs table td.edit {
-			width:40px;
+		#discs table td.edit,
+		#discs table td.delete {
+			width:60px;
 			padding:0;
 			text-align:center;
 		}
 		
-			#discs table td.edit button {
+			#discs table td.edit button,
+			#discs table td.delete button {
 				width:100%;
 				height:100%;
 				padding:0 5px;
 				border-radius:0;
 				border:1px solid #fff;
+			}
+			
+			#discs table td.edit button {
 				background-color:#f06089;
 			}
 			
 			#discs table td.edit button:hover {
 				background-color:#fa8dac;
 			}
-		
-		#discs table td.cost {
-			text-align:right;
-		}
-		
-		#discs table .monthly-cost td,
-		#discs table .total-cost td {
-			background-color:#fff !important;
-			font-size:14px;
-			font-weight:bold;
-		}
-		
-		#discs table .monthly-cost td {
-			border-top-width:2px;
-		}
+			
+			#discs table td.delete button {
+				background-color:#ccc;
+			}
+			
+			#discs table td.delete button:hover {
+				background-color:#ddd;
+			}
 		
 		#discs table .blank td {
 			height:10px;
@@ -165,6 +143,7 @@
 		margin:0 15px 25px 15px;
 	}
 	
+	#editbox dl.file,
 	#editbox dl.keywords,
 	#editbox dl.note {
 		width:530px;
@@ -172,6 +151,10 @@
 	
 		#editbox dl dt {
 			font-weight:bold;
+		}
+		
+		#editbox dl.file input {
+			padding:20px 10px;
 		}
 			
 	#editbox .submit {

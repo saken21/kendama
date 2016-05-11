@@ -2,6 +2,7 @@ package view;
 
 import js.JQuery;
 import jp.saken.utils.Handy;
+import jp.saken.utils.Dateformat;
 import utils.Data;
 
 class Searchbox {
@@ -11,6 +12,8 @@ class Searchbox {
 	private static var _jFrom   :JQuery;
 	private static var _jTo     :JQuery;
 	private static var _jSubmit :JQuery;
+	
+	private static inline var TERM:Int = 3;
 	
 	/* =======================================================================
 	Public - Init
@@ -24,6 +27,8 @@ class Searchbox {
 		_jSubmit  = _jParent.find('.submit').find('button');
 		
 		_jSubmit.on('click',submit);
+		_jParent.find('.register').on('click',register);
+		
 		reset();
 		
 	}
@@ -42,7 +47,11 @@ class Searchbox {
 		========================================================================== */
 		public static function reset():Void {
 			
-			setYear(Date.now().getFullYear());
+			var date:Date = Date.now();
+			
+			_jFrom.prop('value',Dateformat.getMonth(Dateformat.getAddedDate(date,-365 * TERM)));
+			_jTo.prop('value',Dateformat.getMonth(date));
+			
 			searchKeyword('');
 
 		}
@@ -58,23 +67,13 @@ class Searchbox {
 		}
 	
 	/* =======================================================================
-	Set Year
-	========================================================================== */
-	private static function setYear(year:Int):Void {
-		
-		_jFrom.prop('value',getFormattedDate(year,1));
-		_jTo.prop('value',getFormattedDate(year,12));
-		
-	}
-	
-	/* =======================================================================
 	Submit
 	========================================================================== */
 	private static function submit(event:JqEvent):Void {
 		
 		var keyword:String = _jKeyword.prop('value');
-		var from   :String = getDateNumber(_jFrom.prop('value'));
-		var to     :String = getDateNumber(_jTo.prop('value'));
+		var from   :String = _jFrom.prop('value') + '-00';
+		var to     :String = _jTo.prop('value') + '-31';
 		
 		Data.load(keyword,from,to);
 		
@@ -83,20 +82,11 @@ class Searchbox {
 	}
 	
 	/* =======================================================================
-	Get Date Number
+	Register
 	========================================================================== */
-	private static function getDateNumber(date:String):String {
+	private static function register(event:JqEvent):Void {
 		
-		return StringTools.replace(date,'-','');
-		
-	}
-	
-	/* =======================================================================
-	Get Formatted Date
-	========================================================================== */
-	private static function getFormattedDate(year:Int,month:Int):String {
-		
-		return year + '-' + Handy.getFilledNumber(month,2);
+		Editbox.open();
 		
 	}
 

@@ -3,6 +3,7 @@ package view;
 import haxe.Timer;
 import js.JQuery;
 import utils.Data;
+import utils.DiscInfo;
 
 class Editbox {
 	
@@ -29,6 +30,7 @@ class Editbox {
 		_isOpened  = false;
 		
 		_jParent.find('.submit').on('click',submit);
+		_jParent.find('#editbox-file').on('change',selectDirectory);
 		
 	}
 	
@@ -53,6 +55,20 @@ class Editbox {
 			open();
 			
 			Data.loadOne(id,setData);
+
+		}
+		
+		/* =======================================================================
+		Public - Open
+		========================================================================== */
+		public static function open():Void {
+
+			if (_isOpened) return;
+
+			_isOpened = true;
+			move(_width);
+
+			setDefault();
 
 		}
 		
@@ -83,10 +99,9 @@ class Editbox {
 	========================================================================== */
 	private static function setData(data:Dynamic):Void {
 		
-		function setDate(jTarget:JQuery,value:Int):Void {
+		function getFormattedDate(value:String):String {
 			
-			var date:String = Html.getFormattedDate(value,'-');
-			jTarget.prop('value',date);
+			return value.split(' ')[0];
 			
 		}
 		
@@ -96,29 +111,13 @@ class Editbox {
 			var column :String = jTarget.data('column');
 			var value  :String = Reflect.getProperty(data,column);
 			
-			switch (column) {
-				
-				case 'record_date' : setDate(jTarget,Std.parseInt(value));
-				case 'last_modified_date' : setDate(jTarget,Std.parseInt(value));
-				default : jTarget.prop('value',value);
-				
+			if (jTarget.prop('type') == 'date') {
+				value = getFormattedDate(value);
 			}
 			
+			jTarget.prop('value',value);
+			
 		});
-
-	}
-	
-	/* =======================================================================
-	Open
-	========================================================================== */
-	private static function open():Void {
-		
-		if (_isOpened) return;
-		
-		_isOpened = true;
-		move(_width);
-		
-		setDefault();
 
 	}
 	
@@ -150,6 +149,8 @@ class Editbox {
 		
 		if (_currentID == null) Data.insert(getParams(),onUpdated);
 		else Data.update(_currentID,getParams(),onUpdated);
+		
+		return untyped false;
 
 	}
 	
@@ -203,6 +204,15 @@ class Editbox {
 		
 		return params;
 		
+	}
+	
+	/* =======================================================================
+	Select Directory
+	========================================================================== */
+	private static function selectDirectory(event:JqEvent):Void {
+		
+		setData(DiscInfo.get(untyped event.target.files));
+
 	}
 
 }

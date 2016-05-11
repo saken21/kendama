@@ -1,15 +1,15 @@
 package utils;
 
 import jp.saken.utils.API;
-import view.Works;
+import jp.saken.utils.Dateformat;
+import view.Discs;
 
 typedef ParamMap  = Map<String,String>;
 typedef DataArray = Array<Dynamic>;
 
 class Data {
 	
-	private static inline var API_NAME:String = 'webResults2';
-	private static inline var MY_IP   :String = '192.168.0.39';
+	private static inline var API_NAME:String = 'kendama';
 	
 	/* =======================================================================
 	Public - Load
@@ -17,27 +17,9 @@ class Data {
 	public static function load(keyword:String,from:String,to:String):Void {
 		
 		var params:ParamMap = ['from'=>from,'to'=>to];
+		if (keyword.length > 0) params['keyword'] = keyword;
 		
-		if (keyword.length > 0) {
-			params['client'] = keyword;
-		}
-		
-		API.getJSON(API_NAME,params,function(data:DataArray):Void {
-			
-			if (data.length == 0) {
-				
-				params.remove('client');
-				params['keyword'] = keyword;
-				
-				API.getJSON(API_NAME,params,onLoaded);
-				
-				return;
-				
-			}
-			
-			onLoaded(data);
-		
-		});
+		API.getJSON(API_NAME,params,onLoaded);
 		
 	}
 	
@@ -64,6 +46,15 @@ class Data {
 		}
 		
 		/* =======================================================================
+		Public - Delete
+		========================================================================== */
+		public static function delete(id:Int,onLoaded:Void->Void):Void {
+			
+			set(['mode'=>'delete','id'=>Std.string(id)],onLoaded);
+
+		}
+		
+		/* =======================================================================
 		Public - Load One
 		========================================================================== */
 		public static function loadOne(id:Int,onLoaded:Dynamic->Void):Void {
@@ -79,10 +70,8 @@ class Data {
 	========================================================================== */
 	private static function onLoaded(data:DataArray):Void {
 		
-		if (data.length > 0) Works.setHTML(getSplitedData(data));
-		else Works.setEmptyHTML();
-		
-		traceMembersCost(data);
+		if (data.length > 0) Discs.setHTML(getSplitedData(data));
+		else Discs.setEmptyHTML();
 		
 	}
 	
@@ -100,65 +89,26 @@ class Data {
 	/* =======================================================================
 	Get Splited Data
 	========================================================================== */
-	private static function getSplitedData(data:DataArray):Map<Int,DataArray> {
+	private static function getSplitedData(data:DataArray):Map<String,DataArray> {
 		
-		var map:Map<Int,DataArray> = new Map();
+		var map:Map<String,DataArray> = new Map();
 		
 		for (i in 0...data.length) {
 			
 			var info :Dynamic   = data[i];
-			var date :Int       = info.date;
-			var array:DataArray = map[date];
+			var month:String    = Dateformat.getMonth(Date.fromString(info.record_date));
+			var array:DataArray = map[month];
+			
+			info.last_modified_date = Dateformat.getMonth(Date.fromString(info.last_modified_date));
 			
 			if (array == null) array = [];
 			array.push(info);
 			
-			map[date] = array;
+			map[month] = array;
 			
 		}
 		
 		return map;
-		
-	}
-	
-	/* =======================================================================
-	Trace Members Cost
-	========================================================================== */
-	private static function traceMembersCost(data:DataArray):Void {
-		
-		API.getIP(function(ip:String):Void {
-			
-			if (ip != MY_IP) return;
-			
-			var map:Map<String,Int> = new Map();
-			
-			for (i in 0...data.length) {
-				
-				var ratioList:String = data[i].price_ratio_list;
-				if (ratioList == null) continue;
-				
-				var ratios:Array<String> = ratioList.split(',');
-				
-				for (j in 0...ratios.length) {
-					
-					var splits:Array<String> = ratios[j].split('=');
-					
-					var member:String = splits[0];
-					var cost  :Int    = Std.parseInt(splits[1]);
-					var total :Int = map[member];
-					
-					if (total == null) total = 0;
-					total += cost;
-					
-					map[member] = total;
-					
-				}
-				
-			}
-			
-			trace(map);
-			
-		});
 		
 	}
 
