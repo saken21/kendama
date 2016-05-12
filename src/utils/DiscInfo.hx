@@ -74,7 +74,7 @@ class DiscInfo {
 	========================================================================== */
 	private static function pushKeyword(array:Array<String>,value:String):Void {
 		
-		if (value == null) return;
+		if (value == null || StringTools.startsWith(value,'.')) return;
 		if (array.indexOf(value) > -1) return;
 		
 		array.push(value);

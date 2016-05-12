@@ -203,6 +203,7 @@ var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	new js.JQuery("document").ready(function(event) {
+		if(new EReg("chrome","i").match(jp.saken.utils.Dom.userAgent)) new js.JQuery("body").addClass("chrome");
 		view.Searchbox.init();
 		view.Header.init();
 		view.Editbox.init();
@@ -256,6 +257,9 @@ StringBuf.prototype = {
 };
 var StringTools = function() { };
 StringTools.__name__ = true;
+StringTools.startsWith = function(s,start) {
+	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
+};
 StringTools.lpad = function(s,c,l) {
 	if(c.length <= 0) return s;
 	while(s.length < l) s = c + s;
@@ -804,7 +808,7 @@ utils.DiscInfo.analyzeFile = function(file) {
 	utils.DiscInfo._team = info[1];
 };
 utils.DiscInfo.pushKeyword = function(array,value) {
-	if(value == null) return;
+	if(value == null || StringTools.startsWith(value,".")) return;
 	if(HxOverrides.indexOf(array,value,0) > -1) return;
 	array.push(value);
 };

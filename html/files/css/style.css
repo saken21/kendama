@@ -149,6 +149,14 @@
 		width:530px;
 	}
 	
+	#editbox dl.file {
+		display:none;
+	}
+	
+	.chrome #editbox dl.file {
+		display:block;
+	}
+	
 		#editbox dl dt {
 			font-weight:bold;
 		}
