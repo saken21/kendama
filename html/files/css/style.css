@@ -33,12 +33,16 @@
 		}
 		
 		#discs table td {
-			overflow:hidden;
-			word-break:keep-all;
+			word-break:normal;
 		}
 		
 		#discs table tr:nth-child(odd) td {
 			background-color:#f8f8f8;
+		}
+		
+		#discs table td.clients,
+		#discs table td.works {
+			width:30%;
 		}
 			
 		#discs table td.edit,
