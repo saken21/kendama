@@ -14,7 +14,6 @@ class Html {
 		'team'               => '部署／チーム名',
 		'clients'            => 'クライアントリスト',
 		'works'              => '案件リスト',
-		'keywords'           => 'その他キーワード',
 		'last_modified_date' => '最終更新日',
 		'note'               => 'コメント'
 		

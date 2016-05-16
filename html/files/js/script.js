@@ -1072,7 +1072,6 @@ view.Html.COLUMN_LIST = (function($this) {
 	_g.set("team","部署／チーム名");
 	_g.set("clients","クライアントリスト");
 	_g.set("works","案件リスト");
-	_g.set("keywords","その他キーワード");
 	_g.set("last_modified_date","最終更新日");
 	_g.set("note","コメント");
 	$r = _g;
