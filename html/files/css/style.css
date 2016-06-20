@@ -33,7 +33,6 @@
 		}
 		
 		#discs table td {
-			word-break:normal;
 		}
 		
 		#discs table tr:nth-child(odd) td {
