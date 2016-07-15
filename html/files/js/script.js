@@ -456,10 +456,10 @@ jp.saken.utils.Dom.__name__ = true;
 jp.saken.utils.Handy = function() { };
 jp.saken.utils.Handy.__name__ = true;
 jp.saken.utils.Handy.alert = function(value) {
-	jp.saken.utils.Dom.window.alert(value);
+	window.alert(value);
 };
 jp.saken.utils.Handy.confirm = function(text,ok,cancel) {
-	if(jp.saken.utils.Dom.window.confirm(text)) ok(); else if(cancel != null) cancel();
+	if(window.confirm(text)) ok(); else if(cancel != null) cancel();
 };
 jp.saken.utils.Handy.getPastDate = function(date,num) {
 	if(num == null) num = 30;
@@ -1019,7 +1019,7 @@ view.Searchbox.reload = function() {
 };
 view.Searchbox.reset = function() {
 	var date = new Date();
-	view.Searchbox._jFrom.prop("value",jp.saken.utils.Dateformat.getMonth(jp.saken.utils.Dateformat.getAddedDate(date,-1095)));
+	view.Searchbox._jFrom.prop("value",jp.saken.utils.Dateformat.getMonth(jp.saken.utils.Dateformat.getAddedDate(date,-1825)));
 	view.Searchbox._jTo.prop("value",jp.saken.utils.Dateformat.getMonth(date));
 	view.Searchbox.searchKeyword("");
 };
@@ -1078,6 +1078,6 @@ view.Html.COLUMN_LIST = (function($this) {
 	return $r;
 }(this));
 view.Html.COLUMN_LENGTH = 9;
-view.Searchbox.TERM = 3;
+view.Searchbox.TERM = 5;
 Main.main();
 })();

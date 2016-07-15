@@ -13,7 +13,7 @@ class Searchbox {
 	private static var _jTo     :JQuery;
 	private static var _jSubmit :JQuery;
 	
-	private static inline var TERM:Int = 3;
+	private static inline var TERM:Int = 5;
 	
 	/* =======================================================================
 	Public - Init
